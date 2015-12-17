@@ -32,7 +32,6 @@ public class Controller {
 
     private Stage stage;
     private StackPane root;
-    private StackPane imageStack;
 
     private int rectangleWidth = 200;
     private int rectangleHeight = 200;
@@ -49,8 +48,6 @@ public class Controller {
     private Rectangle topRightRectangle;
     private Rectangle bottomLeftRectangle;
     private Rectangle bottomRightRectangle;
-    private Rectangle timerRectangle;
-    private Rectangle outerTimerRectangle;
 
     private Circle insideCircle;
     private Circle circle;
@@ -58,11 +55,13 @@ public class Controller {
     private Circle innerTimerCircle;
 
     private Label scoreLabel;
+    private Button lose;
 
     private LinkedList<Paint> colors;
 
     private SimpleBooleanProperty LOSE_VISIBLE;
     private SimpleBooleanProperty TIME_VISIBLE;
+    public SimpleBooleanProperty FIRST_VISIBLE;
 
     private int counter = 1500;
     private int currentMax = 1500;
@@ -79,11 +78,7 @@ public class Controller {
 
     private static final double BLUR_AMOUNT = 60;
 
-    private static final Effect frostEffect =
-            new BoxBlur(BLUR_AMOUNT, BLUR_AMOUNT, 3);
-
-    private boolean PATH_FLAG = true;
-
+    private static final Effect frostEffect = new BoxBlur(BLUR_AMOUNT, BLUR_AMOUNT, 3);
 
     public Controller(Stage stage, StackPane root) {
         this.stage = stage;
@@ -98,6 +93,7 @@ public class Controller {
 
         LOSE_VISIBLE = new SimpleBooleanProperty(false);
         TIME_VISIBLE = new SimpleBooleanProperty(true);
+        FIRST_VISIBLE = new SimpleBooleanProperty(true);
     }
 
     public void initDisplay() {
@@ -118,7 +114,7 @@ public class Controller {
         hbox2.setAlignment(Pos.CENTER);
         vbox.setAlignment(Pos.CENTER);
 
-        Button lose = new Button("try again");
+        lose = new Button("play");
         lose.setTextFill(black);
         lose.setId("lose-button");
         lose.visibleProperty().bind(LOSE_VISIBLE);
@@ -178,7 +174,7 @@ public class Controller {
         int i = 0;
         while(i < 4)
         {
-            int x = (int)(Math.random()*10) % 4;
+            int x = (int)(Math.random() * 10) % 4;
             if(!colors.contains(x)) {
                 colors.add(x);
                 i++;
@@ -212,7 +208,7 @@ public class Controller {
     }
 
     public double getNewCounterValue(int score) {
-        return 1500.0 * Math.pow(0.97, score);
+        return 1500.0 * Math.pow(0.98, score);
     }
 
     public void initRectangles() {
@@ -273,18 +269,5 @@ public class Controller {
 
         innerTimerCircle.visibleProperty().bind(TIME_VISIBLE);
         outerTimerCircle.visibleProperty().bind(TIME_VISIBLE);
-    }
-
-    public void initOpening() {
-        VBox vbox = new VBox();
-
-        Text tutorial = new Text("click on the rectangle that is the same color as the circle");
-        tutorial.setFill(black);
-        tutorial.setWrappingWidth(200);
-
-        vbox.getChildren().add(tutorial);
-        vbox.setAlignment(Pos.CENTER);
-
-        imageStack.getChildren().add(vbox);
     }
 }

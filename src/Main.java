@@ -7,12 +7,14 @@ import javafx.scene.effect.BoxBlur;
 import javafx.scene.effect.Effect;
 import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
+import javafx.scene.layout.Background;
 import javafx.scene.layout.Pane;
 import javafx.scene.layout.StackPane;
 import javafx.scene.layout.VBox;
 import javafx.scene.paint.Color;
 import javafx.scene.shape.Rectangle;
 import javafx.scene.text.Text;
+import javafx.scene.text.TextAlignment;
 import javafx.stage.Stage;
 
 public class Main extends Application {
@@ -37,7 +39,7 @@ public class Main extends Application {
         this.root = new StackPane();
         stage = primaryStage;
 
-        Controller controller = new Controller(stage, root);
+        controller = new Controller(stage, root);
         controller.initDisplay();
 
         stage.setResizable(true);
@@ -48,6 +50,7 @@ public class Main extends Application {
 
         stage.setTitle("Colors");
         stage.show();
+        this.showTutorial();
     }
 
 
@@ -65,13 +68,20 @@ public class Main extends Application {
 
         imageStack.setOnMouseClicked(e -> {
             this.root.getChildren().removeAll(imageStack, frost);
+            this.controller.FIRST_VISIBLE.setValue(false);
         });
 
         VBox vbox = new VBox();
         vbox.setAlignment(Pos.CENTER);
+        vbox.setBackground(Background.EMPTY);
 
         Text text = new Text("click on the rectangle that is the same color as the circle");
-        //TODO finish this and then show tutorial in the start method
+        text.setWrappingWidth(200);
+        text.setTextAlignment(TextAlignment.CENTER);
+        text.setStyle("-fx-font-size:20;");
+
+        vbox.getChildren().add(text);
+        imageStack.getChildren().add(vbox);
 
         this.root.getChildren().addAll(frost, imageStack);
     }
