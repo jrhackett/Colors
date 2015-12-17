@@ -69,6 +69,8 @@ public class Main extends Application {
         imageStack.setOnMouseClicked(e -> {
             this.root.getChildren().removeAll(imageStack, frost);
             this.controller.FIRST_VISIBLE.setValue(false);
+            this.controller.first = false;
+            this.controller.timeline.playFromStart();
         });
 
         VBox vbox = new VBox();

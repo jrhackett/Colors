@@ -7,3 +7,9 @@
 #score-label {
     -fx-font-size:30;
 }
+
+#sound-button {
+    -fx-background-color: #e0e0e0;
+    -fx-max-width: 30;
+    -fx-border-width: 0;
+}

@@ -15,6 +15,8 @@ import javafx.scene.layout.HBox;
 import javafx.scene.layout.Pane;
 import javafx.scene.layout.StackPane;
 import javafx.scene.layout.VBox;
+import javafx.scene.media.Media;
+import javafx.scene.media.MediaPlayer;
 import javafx.scene.paint.Color;
 import javafx.scene.paint.Paint;
 import javafx.scene.shape.Circle;
@@ -24,6 +26,7 @@ import javafx.stage.Stage;
 import javafx.scene.control.Button;
 import javafx.util.Duration;
 
+import java.io.File;
 import java.util.LinkedList;
 import java.util.Timer;
 import java.util.TimerTask;
@@ -57,6 +60,13 @@ public class Controller {
     private Label scoreLabel;
     private Button lose;
 
+    private Button sound;
+    private Image soundOn;
+    private Image soundOff;
+    private ImageView soundOnView;
+    private ImageView soundOffView;
+    private boolean playSound = true;
+
     private LinkedList<Paint> colors;
 
     private SimpleBooleanProperty LOSE_VISIBLE;
@@ -65,11 +75,13 @@ public class Controller {
 
     private int counter = 1500;
     private int currentMax = 1500;
-    private Timeline timeline;
+    public Timeline timeline;
 
     private int score = 0;
 
     private boolean playable = true;
+    public boolean first = true;
+    private double offset = 20;
 
 
     /** Frosty **/
@@ -100,6 +112,7 @@ public class Controller {
         VBox vbox = new VBox();
         HBox hbox1 = new HBox();
         HBox hbox2 = new HBox();
+        HBox top = new HBox();
 
         initRectangles();
 
@@ -109,12 +122,14 @@ public class Controller {
         hbox1.setSpacing(10);
         hbox2.setSpacing(10);
         vbox.setSpacing(10);
+        top.setSpacing(350);
 
         hbox1.setAlignment(Pos.CENTER);
         hbox2.setAlignment(Pos.CENTER);
         vbox.setAlignment(Pos.CENTER);
+        top.setAlignment(Pos.CENTER);
 
-        lose = new Button("play");
+        lose = new Button("try again");
         lose.setTextFill(black);
         lose.setId("lose-button");
         lose.visibleProperty().bind(LOSE_VISIBLE);
@@ -138,12 +153,14 @@ public class Controller {
         timeline.getKeyFrames().add(new KeyFrame(Duration.millis(1), new EventHandler<ActionEvent>() {
             @Override
             public void handle(ActionEvent event) {
-                if(playable) {
+                if(playable && !first) {
                     counter--;
                     scoreLabel.setText(Integer.toString(score));
                     outerTimerCircle.setRadius(73 * counter / currentMax);
                     innerTimerCircle.setRadius(outerTimerCircle.getRadius() - timerWidth);
                     if (counter <= 0) {
+                        if(playSound)
+                            playLoseSound();
                         timeline.stop();
                         playable = false;
                         LOSE_VISIBLE.setValue(true);
@@ -158,9 +175,26 @@ public class Controller {
         }));
         timeline.playFromStart();
 
-        vbox.getChildren().addAll(scoreLabel, hbox1, hbox2);
+        soundOn = new Image("assets/sound.png", 24, 24, true, true);
+        soundOnView = new ImageView(soundOn);
+
+        soundOff = new Image("assets/nosound.png", 24, 24, true, true);
+        soundOffView = new ImageView(soundOff);
+
+        sound = new Button();
+        sound.setId("sound-button");
+        sound.setGraphic(soundOnView);
+        sound.setOnMouseClicked(e -> handleSoundButton());
+
+        top.getChildren().addAll(scoreLabel, sound);
+        vbox.getChildren().addAll(top, hbox1, hbox2);
 
         initCircles();
+        circle.setTranslateY(offset);
+        insideCircle.setTranslateY(offset);
+        innerTimerCircle.setTranslateY(offset);
+        outerTimerCircle.setTranslateY(offset);
+        lose.setTranslateY(offset);
 
         this.root.getChildren().addAll(vbox, circle, insideCircle, lose, outerTimerCircle, innerTimerCircle);
     }
@@ -193,6 +227,9 @@ public class Controller {
 
     public void handleRectangleClick(Rectangle rectangle) {
         if(rectangle.getFill() == insideCircle.getFill() && playable) {
+            if(playSound)
+                playHitSound();
+
             this.score++;
             insideCircle.setFill(randomColor());
             this.changeRectangleColors();
@@ -201,6 +238,7 @@ public class Controller {
         }
         else
         {
+            if(counter > 0 && playSound) playLoseSound();
             LOSE_VISIBLE.setValue(true);
             TIME_VISIBLE.setValue(false);
             playable = false;
@@ -269,5 +307,28 @@ public class Controller {
 
         innerTimerCircle.visibleProperty().bind(TIME_VISIBLE);
         outerTimerCircle.visibleProperty().bind(TIME_VISIBLE);
+    }
+
+    public void playHitSound() {
+        Media hit = new Media(new File("src/assets/hit.wav").toURI().toString());
+        MediaPlayer mediaPlayer = new MediaPlayer(hit);
+        mediaPlayer.setVolume(0.5);
+        mediaPlayer.play();
+    }
+
+    public void playLoseSound() {
+        Media lose = new Media(new File("src/assets/lose.wav").toURI().toString());
+        MediaPlayer mediaPlayer = new MediaPlayer(lose);
+        mediaPlayer.setVolume(0.7);
+        mediaPlayer.play();
+    }
+
+    public void handleSoundButton() {
+        if(sound.getGraphic().equals(soundOnView))
+            sound.setGraphic(soundOffView);
+        else
+            sound.setGraphic(soundOnView);
+
+        playSound = !playSound;
     }
 }
