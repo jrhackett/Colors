@@ -3,4 +3,4 @@
 .idea/*
 out/*
 src/.idea/*
-src/META-INF/*
+META-INF/*
