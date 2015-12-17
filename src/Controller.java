@@ -26,11 +26,14 @@ public class Controller {
 
     private int rectangleWidth = 200;
     private int rectangleHeight = 200;
+    private int timerWidth = 4;
 
-    private Paint red = Paint.valueOf("red");
-    private Paint green = Paint.valueOf("green");
-    private Paint blue = Paint.valueOf("blue");
-    private Paint yellow = Paint.valueOf("yellow");
+    private Paint red = Paint.valueOf("#ae5a41");
+    private Paint green = Paint.valueOf("#559e83");
+    private Paint blue = Paint.valueOf("#1b85b8");
+    private Paint yellow = Paint.valueOf("#c3cb71");
+    private Paint white = Paint.valueOf("#e0e0e0");
+    private Paint black = Paint.valueOf("#5a5255");
 
     private Rectangle topLeftRectangle;
     private Rectangle topRightRectangle;
@@ -41,8 +44,10 @@ public class Controller {
 
     private Circle insideCircle;
     private Circle circle;
+    private Circle outerTimerCircle;
+    private Circle innerTimerCircle;
 
-    private Label timerLabel;
+    private Label scoreLabel;
 
     private LinkedList<Paint> colors;
 
@@ -60,7 +65,7 @@ public class Controller {
     public Controller(Stage stage, StackPane root) {
         this.stage = stage;
         this.root = root;
-        this.root.setStyle("-fx-background-color:#333;");
+        this.root.setStyle("-fx-background-color:#e0e0e0;");//5a5255
 
         this.colors = new LinkedList<>();
         this.colors.add(red);
@@ -90,9 +95,9 @@ public class Controller {
         hbox2.setAlignment(Pos.CENTER);
         vbox.setAlignment(Pos.CENTER);
 
-        Button lose = new Button("Try again");
-        lose.setTextFill(Paint.valueOf("#333"));
-        lose.setStyle("-fx-font-size:30; -fx-background-color:white;");
+        Button lose = new Button("try again");
+        lose.setTextFill(black);
+        lose.setId("lose-button");
         lose.visibleProperty().bind(LOSE_VISIBLE);
 
         lose.setOnMouseClicked(e -> {
@@ -104,10 +109,10 @@ public class Controller {
             this.score = 0;
         });
 
-        timerLabel = new Label();
-        timerLabel.setText(Integer.toString(score));
-        timerLabel.setTextFill(Paint.valueOf("#eeeeee"));
-        timerLabel.setStyle("-fx-font-size:30");
+        scoreLabel = new Label();
+        scoreLabel.setText(Integer.toString(score));
+        scoreLabel.setTextFill(black);
+        scoreLabel.setStyle("-fx-font-size:30");
 
         timeline = new Timeline();
         timeline.setCycleCount(Timeline.INDEFINITE);
@@ -116,8 +121,9 @@ public class Controller {
             public void handle(ActionEvent event) {
                 if(playable) {
                     counter--;
-                    timerLabel.setText(Integer.toString(score));
-                    timerRectangle.setHeight(160 * counter / currentMax);
+                    scoreLabel.setText(Integer.toString(score));
+                    outerTimerCircle.setRadius(73 * counter / currentMax);
+                    innerTimerCircle.setRadius(outerTimerCircle.getRadius() - timerWidth);
                     if (counter <= 0) {
                         timeline.stop();
                         playable = false;
@@ -133,17 +139,11 @@ public class Controller {
         }));
         timeline.playFromStart();
 
-        vbox.getChildren().addAll(timerLabel, hbox1, hbox2);
+        vbox.getChildren().addAll(scoreLabel, hbox1, hbox2);
 
-        circle = new Circle();
-        insideCircle = new Circle();
+        initCircles();
 
-        circle.setRadius(90);
-        circle.setFill(Paint.valueOf("#333"));
-        insideCircle.setRadius(80);
-        insideCircle.setFill(randomColor());
-
-        this.root.getChildren().addAll(vbox, circle, insideCircle,lose, outerTimerRectangle, timerRectangle);
+        this.root.getChildren().addAll(vbox, circle, insideCircle, lose, outerTimerCircle, innerTimerCircle);
     }
 
     public Paint randomColor() {
@@ -178,6 +178,7 @@ public class Controller {
             insideCircle.setFill(randomColor());
             this.changeRectangleColors();
             counter = (int)getNewCounterValue(this.score);
+            innerTimerCircle.setFill(insideCircle.getFill());
         }
         else
         {
@@ -228,17 +229,26 @@ public class Controller {
         bottomRightRectangle.setOnMouseClicked(e -> {
             handleRectangleClick(bottomRightRectangle);
         });
+    }
 
-        timerRectangle = new Rectangle();
-        timerRectangle.setWidth(5);
-        timerRectangle.setHeight(160);
-        timerRectangle.setFill(Paint.valueOf("#ccc"));
-        timerRectangle.visibleProperty().bind(TIME_VISIBLE);
+    private void initCircles() {
+        circle = new Circle();
+        insideCircle = new Circle();
+        innerTimerCircle = new Circle();
+        outerTimerCircle = new Circle();
 
-        outerTimerRectangle = new Rectangle();
-        outerTimerRectangle.setWidth(20);
-        outerTimerRectangle.setHeight(160);
-        outerTimerRectangle.setFill(Paint.valueOf("#333"));
-        outerTimerRectangle.visibleProperty().bind(TIME_VISIBLE);
+        circle.setRadius(90);
+        circle.setFill(white);
+        insideCircle.setRadius(80);
+        insideCircle.setFill(randomColor());
+
+        innerTimerCircle.setRadius(70);
+        innerTimerCircle.setFill(insideCircle.getFill());
+
+        outerTimerCircle.setRadius(innerTimerCircle.getRadius() + timerWidth);
+        outerTimerCircle.setFill(white);
+
+        innerTimerCircle.visibleProperty().bind(TIME_VISIBLE);
+        outerTimerCircle.visibleProperty().bind(TIME_VISIBLE);
     }
 }

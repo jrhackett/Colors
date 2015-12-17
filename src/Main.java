@@ -19,7 +19,10 @@ public class Main extends Application {
         controller.initDisplay();
 
         stage.setResizable(true);
-        stage.setScene(new Scene(this.root, 500, 500));
+        Scene scene = new Scene(this.root, 500, 500);
+        scene.getStylesheets().add("css/custom.css");
+        stage.setScene(scene);
+
 
         stage.setTitle("Colors");
         stage.show();
