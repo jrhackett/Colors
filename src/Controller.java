@@ -1,5 +1,10 @@
+import javafx.animation.KeyFrame;
+import javafx.animation.Timeline;
 import javafx.beans.property.SimpleBooleanProperty;
+import javafx.event.ActionEvent;
+import javafx.event.EventHandler;
 import javafx.geometry.Pos;
+import javafx.scene.control.Label;
 import javafx.scene.layout.HBox;
 import javafx.scene.layout.StackPane;
 import javafx.scene.layout.VBox;
@@ -8,9 +13,11 @@ import javafx.scene.shape.Circle;
 import javafx.scene.shape.Rectangle;
 import javafx.stage.Stage;
 import javafx.scene.control.Button;
+import javafx.util.Duration;
 
 import java.util.LinkedList;
 import java.util.Timer;
+import java.util.TimerTask;
 
 public class Controller {
 
@@ -29,15 +36,24 @@ public class Controller {
     private Rectangle topRightRectangle;
     private Rectangle bottomLeftRectangle;
     private Rectangle bottomRightRectangle;
+    private Rectangle timerRectangle;
+    private Rectangle outerTimerRectangle;
 
     private Circle insideCircle;
     private Circle circle;
 
+    private Label timerLabel;
+
     private LinkedList<Paint> colors;
 
     private SimpleBooleanProperty LOSE_VISIBLE;
+    private SimpleBooleanProperty TIME_VISIBLE;
 
-    private Timer timer;
+    private int counter = 1500;
+    private int currentMax = 1500;
+    private Timeline timeline;
+
+    private int score = 0;
 
     private boolean playable = true;
 
@@ -53,6 +69,7 @@ public class Controller {
         this.colors.add(yellow);
 
         LOSE_VISIBLE = new SimpleBooleanProperty(false);
+        TIME_VISIBLE = new SimpleBooleanProperty(true);
     }
 
     public void initDisplay() {
@@ -79,11 +96,44 @@ public class Controller {
         lose.visibleProperty().bind(LOSE_VISIBLE);
 
         lose.setOnMouseClicked(e -> {
-            playable = true;
-            LOSE_VISIBLE.setValue(false);
+            this.playable = true;
+            this.LOSE_VISIBLE.setValue(false);
+            this.TIME_VISIBLE.setValue(true);
+            this.counter = 1500;
+            timeline.playFromStart();
+            this.score = 0;
         });
 
-        vbox.getChildren().addAll(hbox1, hbox2);
+        timerLabel = new Label();
+        timerLabel.setText(Integer.toString(score));
+        timerLabel.setTextFill(Paint.valueOf("#eeeeee"));
+        timerLabel.setStyle("-fx-font-size:30");
+
+        timeline = new Timeline();
+        timeline.setCycleCount(Timeline.INDEFINITE);
+        timeline.getKeyFrames().add(new KeyFrame(Duration.millis(1), new EventHandler<ActionEvent>() {
+            @Override
+            public void handle(ActionEvent event) {
+                if(playable) {
+                    counter--;
+                    timerLabel.setText(Integer.toString(score));
+                    timerRectangle.setHeight(160 * counter / currentMax);
+                    if (counter <= 0) {
+                        timeline.stop();
+                        playable = false;
+                        LOSE_VISIBLE.setValue(true);
+                        TIME_VISIBLE.setValue(false);
+                    }
+                }
+                else
+                {
+                    timeline.stop();
+                }
+            }
+        }));
+        timeline.playFromStart();
+
+        vbox.getChildren().addAll(timerLabel, hbox1, hbox2);
 
         circle = new Circle();
         insideCircle = new Circle();
@@ -93,7 +143,7 @@ public class Controller {
         insideCircle.setRadius(80);
         insideCircle.setFill(randomColor());
 
-        this.root.getChildren().addAll(vbox, circle, insideCircle,lose);
+        this.root.getChildren().addAll(vbox, circle, insideCircle,lose, outerTimerRectangle, timerRectangle);
     }
 
     public Paint randomColor() {
@@ -122,6 +172,25 @@ public class Controller {
         bottomRightRectangle.setFill(this.colors.get(list.get(3)));
     }
 
+    public void handleRectangleClick(Rectangle rectangle) {
+        if(rectangle.getFill() == insideCircle.getFill() && playable) {
+            this.score++;
+            insideCircle.setFill(randomColor());
+            this.changeRectangleColors();
+            counter = (int)getNewCounterValue(this.score);
+        }
+        else
+        {
+            LOSE_VISIBLE.setValue(true);
+            TIME_VISIBLE.setValue(false);
+            playable = false;
+        }
+    }
+
+    public double getNewCounterValue(int score) {
+        return 1500.0 * Math.pow(0.97, score);
+    }
+
     public void initRectangles() {
         topLeftRectangle = new Rectangle();
         topRightRectangle = new Rectangle();
@@ -144,51 +213,32 @@ public class Controller {
         bottomLeftRectangle.setFill(yellow);
 
         topLeftRectangle.setOnMouseClicked(e -> {
-            if(topLeftRectangle.getFill() == insideCircle.getFill() && playable) {
-                insideCircle.setFill(randomColor());
-                this.changeRectangleColors();
-            }
-            else
-            {
-                LOSE_VISIBLE.setValue(true);
-                playable = false;
-            }
+            handleRectangleClick(topLeftRectangle);
         });
 
         topRightRectangle.setOnMouseClicked(e -> {
-            if(topRightRectangle.getFill() == insideCircle.getFill() && playable) {
-                insideCircle.setFill(randomColor());
-                this.changeRectangleColors();
-            }
-            else
-            {
-                LOSE_VISIBLE.setValue(true);
-                playable = false;
-            }
+            handleRectangleClick(topRightRectangle);
         });
 
         bottomLeftRectangle.setOnMouseClicked(e -> {
-            if(bottomLeftRectangle.getFill() == insideCircle.getFill() && playable) {
-                insideCircle.setFill(randomColor());
-                this.changeRectangleColors();
-            }
-            else
-            {
-                LOSE_VISIBLE.setValue(true);
-                playable = false;
-            }
+            handleRectangleClick(bottomLeftRectangle);
+
         });
 
         bottomRightRectangle.setOnMouseClicked(e -> {
-            if(bottomRightRectangle.getFill() == insideCircle.getFill() && playable) {
-                insideCircle.setFill(randomColor());
-                this.changeRectangleColors();
-            }
-            else
-            {
-                LOSE_VISIBLE.setValue(true);
-                playable= false;
-            }
+            handleRectangleClick(bottomRightRectangle);
         });
+
+        timerRectangle = new Rectangle();
+        timerRectangle.setWidth(5);
+        timerRectangle.setHeight(160);
+        timerRectangle.setFill(Paint.valueOf("#ccc"));
+        timerRectangle.visibleProperty().bind(TIME_VISIBLE);
+
+        outerTimerRectangle = new Rectangle();
+        outerTimerRectangle.setWidth(20);
+        outerTimerRectangle.setHeight(160);
+        outerTimerRectangle.setFill(Paint.valueOf("#333"));
+        outerTimerRectangle.visibleProperty().bind(TIME_VISIBLE);
     }
 }
