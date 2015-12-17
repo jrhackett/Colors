@@ -4,13 +4,22 @@ import javafx.beans.property.SimpleBooleanProperty;
 import javafx.event.ActionEvent;
 import javafx.event.EventHandler;
 import javafx.geometry.Pos;
+import javafx.scene.Node;
+import javafx.scene.SnapshotParameters;
 import javafx.scene.control.Label;
+import javafx.scene.effect.BoxBlur;
+import javafx.scene.effect.Effect;
+import javafx.scene.image.Image;
+import javafx.scene.image.ImageView;
 import javafx.scene.layout.HBox;
+import javafx.scene.layout.Pane;
 import javafx.scene.layout.StackPane;
 import javafx.scene.layout.VBox;
+import javafx.scene.paint.Color;
 import javafx.scene.paint.Paint;
 import javafx.scene.shape.Circle;
 import javafx.scene.shape.Rectangle;
+import javafx.scene.text.Text;
 import javafx.stage.Stage;
 import javafx.scene.control.Button;
 import javafx.util.Duration;
@@ -23,6 +32,7 @@ public class Controller {
 
     private Stage stage;
     private StackPane root;
+    private StackPane imageStack;
 
     private int rectangleWidth = 200;
     private int rectangleHeight = 200;
@@ -61,6 +71,19 @@ public class Controller {
     private int score = 0;
 
     private boolean playable = true;
+
+
+    /** Frosty **/
+    private static final double W = 330;
+    private static final double H = 590;
+
+    private static final double BLUR_AMOUNT = 60;
+
+    private static final Effect frostEffect =
+            new BoxBlur(BLUR_AMOUNT, BLUR_AMOUNT, 3);
+
+    private boolean PATH_FLAG = true;
+
 
     public Controller(Stage stage, StackPane root) {
         this.stage = stage;
@@ -112,7 +135,7 @@ public class Controller {
         scoreLabel = new Label();
         scoreLabel.setText(Integer.toString(score));
         scoreLabel.setTextFill(black);
-        scoreLabel.setStyle("-fx-font-size:30");
+        scoreLabel.setId("score-label");
 
         timeline = new Timeline();
         timeline.setCycleCount(Timeline.INDEFINITE);
@@ -250,5 +273,18 @@ public class Controller {
 
         innerTimerCircle.visibleProperty().bind(TIME_VISIBLE);
         outerTimerCircle.visibleProperty().bind(TIME_VISIBLE);
+    }
+
+    public void initOpening() {
+        VBox vbox = new VBox();
+
+        Text tutorial = new Text("click on the rectangle that is the same color as the circle");
+        tutorial.setFill(black);
+        tutorial.setWrappingWidth(200);
+
+        vbox.getChildren().add(tutorial);
+        vbox.setAlignment(Pos.CENTER);
+
+        imageStack.getChildren().add(vbox);
     }
 }

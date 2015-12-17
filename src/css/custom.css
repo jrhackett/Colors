@@ -3,3 +3,7 @@
     -fx-background-color:#e0e0e0;
     -fx-max-width: 165;
 }
+
+#score-label {
+    -fx-font-size:30;
+}
