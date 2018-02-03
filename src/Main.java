@@ -23,15 +23,10 @@ public class Main extends Application {
     private StackPane root;
     private Controller controller;
 
-    private static final double W = 330;
-    private static final double H = 590;
-
     private static final double BLUR_AMOUNT = 60;
 
     private static final Effect frostEffect =
             new BoxBlur(BLUR_AMOUNT, BLUR_AMOUNT, 3);
-
-    private boolean PATH_FLAG = true;
 
     @Override
     public void start(Stage primaryStage) throws Exception{
@@ -39,7 +34,7 @@ public class Main extends Application {
         this.root = new StackPane();
         stage = primaryStage;
 
-        controller = new Controller(stage, root);
+        controller = new Controller(root);
         controller.initDisplay();
 
         stage.setResizable(true);
@@ -52,12 +47,6 @@ public class Main extends Application {
         stage.show();
         this.showTutorial();
     }
-
-
-    public static void main(String[] args) {
-        launch(args);
-    }
-
 
     public void showTutorial() {
 
@@ -115,5 +104,9 @@ public class Main extends Application {
         frostView.setClip(clipShape);
 
         return frostView;
+    }
+
+    public static void main(String[] args) {
+        launch(args);
     }
 }

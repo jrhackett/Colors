@@ -33,7 +33,6 @@ import java.util.TimerTask;
 
 public class Controller {
 
-    private Stage stage;
     private StackPane root;
 
     private int rectangleWidth = 200;
@@ -84,16 +83,7 @@ public class Controller {
     private double offset = 20;
 
 
-    /** Frosty **/
-    private static final double W = 330;
-    private static final double H = 590;
-
-    private static final double BLUR_AMOUNT = 60;
-
-    private static final Effect frostEffect = new BoxBlur(BLUR_AMOUNT, BLUR_AMOUNT, 3);
-
-    public Controller(Stage stage, StackPane root) {
-        this.stage = stage;
+    public Controller(StackPane root) {
         this.root = root;
         this.root.setStyle("-fx-background-color:#e0e0e0;");//5a5255
 
