@@ -2,9 +2,6 @@ package styles;
 
 import javafx.scene.paint.Paint;
 
-/**
- * Created by jacobhackett on 2/3/18.
- */
 public enum Colors {
     RED (Paint.valueOf("#ae5a41")),
     GREEN (Paint.valueOf("#559e83")),
