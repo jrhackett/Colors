@@ -1,4 +1,4 @@
-package views.styles;
+package styles;
 
 import javafx.scene.paint.Paint;
 

@@ -1,7 +1,7 @@
-package views;
+package sound;
 
 /**
  * Created by jacobhackett on 2/3/18.
  */
-public class SquareView {
+public class SoundView {
 }
